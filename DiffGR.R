@@ -3,7 +3,8 @@
 #'
 #'
 #' @dat1,@dat2 numeric. N*N HiC contact maps which have been preprocessed (2D mean filter smoothing and KR normalization)
-#' @tad1 @tad2 numeric. TAD boundaries of dat1 and dat2 (calling by HiCseg)
+#' @tad1 @tad2 numeric. A vector of TAD boundaries of dat1 and dat2 (calling by HiCseg)
+#' @res numeric. The resolution of HiC contact maps, eg:100kb will input 100,000
 #' @N.perm numeric. The number of iterations in permutation test
 #' @speedup.option logical. (True/FALSE) Calculation with or without speed-up algorithm
 #' @alpha logical. Significant level of differential region testing 
