@@ -22,4 +22,4 @@
 #' genom.end: the end locus of genomic region
 #' condition.type: the type if candidate genomic region belonging to. 1:single-TAD, 2: Hierachical-TAD, 3: Alternating-TAD
 #' detect.result: the differential testing result for corresponding genomic region. 1:Differential 0:Non-differential 
-#'  
+
