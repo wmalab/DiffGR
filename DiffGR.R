@@ -34,15 +34,15 @@ DiffGR<- function(dat1,tad1,dat2,tad2,res,N.perm=2000,speedup.option=TRUE,alpha=
   max.distance <- 10000000/res
   
   # Function of calculating SCC 
-  scc <- function(dat1,dat2){
-  dat1 <- as.matrix(dat1)
-  colnames(dat1) <- 1:ncol(dat1)
-  rownames(dat1) <- 1:ncol(dat1)
-  dat1.vec <- MatToVec(dat1)
-  dat2 <- as.matrix(dat2)
-  colnames(dat2) <- 1:ncol(dat2)
-  rownames(dat2) <- 1:ncol(dat2)
-  dat2.vec <- MatToVec(dat2)
+  scc <- function(dat1.i,dat2.i){
+  dat1.i <- as.matrix(dat1.i)
+  colnames(dat1.i) <- 1:ncol(dat1.i)
+  rownames(dat1.i) <- 1:ncol(dat1.i)
+  dat1.vec <- MatToVec(dat1.i)
+  dat2.i <- as.matrix(dat2.i)
+  colnames(dat2.i) <- 1:ncol(dat2.i)
+  rownames(dat2.i) <- 1:ncol(dat2.i)
+  dat2.vec <- MatToVec(dat2.i)
   dat.comb <- matrix(0,ncol=4,nrow=nrow(dat1.vec))
   dat.comb[,1:3] <- dat1.vec
   dat.comb[,4] <- dat2.vec[,3]
