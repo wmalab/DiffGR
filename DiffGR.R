@@ -207,9 +207,6 @@ DiffGR<- function(dat1,tad1,dat2,tad2,res,N.perm=2000,speedup.option=TRUE,alpha=
      for(i in 1:nrow(genomic.interval)){
        s <- min(which(tad.result[,1]==genomic.interval[i,1]))
        e <- max(which(tad.result[,2]==genomic.interval[i,2]))
-       detect.result[i] <- sum(tad.result[s:e,5]<alpha)
-       lenn <- result[tt,2]-result[tt,1]+1
-       #tt.l <- which(lenn>4)
        if(sum(tad.result[s:e,5]<alpha)>0){
          diff.tad <- which(tad.result[s:e,5]<alpha)
          diff.len.max  <- max(tad.result[(diff.tad+s-1),2]-tad.result[(diff.tad+s-1),1])
