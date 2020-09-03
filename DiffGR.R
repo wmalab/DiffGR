@@ -146,14 +146,17 @@ DiffGR<- function(dat1,tad1,dat2,tad2,res,N.perm=2000,speedup.option=TRUE,alpha=
     if(bins[i+1]-bins[i]==1){
       condition.type[i] <- 1
     }else{
-      tad.cutpoint <- tad.bound[(bins[i]+1:bins[i+1]-1),2:3]
+       if(bins[i+1]-bins[i]==2){
+      condition.type[i] <- 2
+    }else{
+      tad.cutpoint <- tad.bound[(bins[i]+1):(bins[i+1]-1),2:3]
       if(sum(tad.cutpoint[,1])!=0 && sum(tad.cutpoint[,2])!=0){
         condition.type[i] <- 3
       }else{
         condition.type[i] <- 2
       }
     }
-    
+    }
   }
   
   len.tad.uniq <- sort(unique(tad.interval[,2]-tad.interval[,1]+1))
@@ -162,7 +165,7 @@ DiffGR<- function(dat1,tad1,dat2,tad2,res,N.perm=2000,speedup.option=TRUE,alpha=
   
   rho.table <- matrix(0,nrow=length(len.tad.uniq),ncol=((alpha*N.perm+1)))
   
-  if(speedup.option=FALSE){
+  if(speedup.option==FALSE){
    for(l in 1:length(len.tad.uniq)){
     perm.result  <- perm(dat1,dat2,len.tad.uniq[l],N.perm)
     rho.table[l,] <- c(len.tad.uniq[l],perm.result$rho.vec)
