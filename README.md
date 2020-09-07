@@ -56,7 +56,18 @@ detect.result: the differential testing result for corresponding genomic region.
 
 # Sample Data
 
+The data getting from chr10 of GM12878 and HMEC with resolution=50kb were untilized as sample data. In the sample data file, dat1 and dat2 represent their corresponding HiC contacts with 2D mean filter smoothing and KR normalization; tad1 and tad2 denote their TAD boundaries which were detected by HiCseg. 
 
+To run the sampe data, 
+
+```
+dat1 <- readRDS("path/dat1.rds")
+dat2 <- readRDS("path/dat2.rds")
+tad1 <- read.table("path/tad1.txt")
+tad2 <- read.table("path/tad2/txt")
+result <- DiffGR(dat1,dat2,tad1$x,tad2$x,res=50000)
+
+```
 
 
 
