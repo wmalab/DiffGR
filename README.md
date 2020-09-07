@@ -1,4 +1,4 @@
-DiffGR: Differential genomic region detection function
+# DiffGR: Differential genomic region detection function
 
 DiffGR is a novel statistical method for detecting differential genomic regions at TAD level between two Hi-C contact maps. Briefly, DiffGR utilizes the stratum-adjusted correlation coefficient (SCC), which can effectively eliminate the genomic-distance effect in Hi-C data, to measure the similarity of local genomic regions between two contact matrices, and then applies a nonparametric permutation test on those SCC values to detect genomic regions. 
 
@@ -57,7 +57,6 @@ detect.result: the differential testing result for corresponding genomic region.
 # Sample Data
 
 
-aa
 
 
 
