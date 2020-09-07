@@ -64,8 +64,8 @@ To run the sampe data,
 dat1 <- readRDS("path/dat1.rds")
 dat2 <- readRDS("path/dat2.rds")
 tad1 <- read.table("path/tad1.txt")
-tad2 <- read.table("path/tad2/txt")
-result <- DiffGR(dat1,dat2,tad1$x,tad2$x,res=50000)
+tad2 <- read.table("path/tad2.txt")
+result <- DiffGR(dat1,tad1$x,dat2,tad2$x,res=50000)
 
 ```
 
