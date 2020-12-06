@@ -13,15 +13,22 @@ The source code can be performed under R language version 4.0.2 with the install
 
 ```
 
-@dat1,@dat2 numeric. N*N HiC contact maps which have been preprocessed with 2D mean filter smoothing and KR normalization
+@dat1,@dat2           numeric.  N*N  raw HiC contact maps, which would firstly be preprocessed with 2D
+                      mean filter smoothing and KR normalization in DiffGR function for the later use
+ 
+@res                  numeric. The resolution of HiC contact maps, eg:100kb will input 100,000
 
-@res numeric. The resolution of HiC contact maps, eg:100kb will input 100,000
+@smooth.size          numeric. The size varied with different resolutions. 
 
-@N.perm numeric. The number of iterations in permutation test
+@N.perm               numeric. The number of iterations in permutation test
 
-@speedup.option logical. (True/FALSE) Calculation with or without speed-up algorithm
+@cutoff.default       logical. Whether set the SCC cutoff (meaningful SCC between the two Hi-C datasets
+                      that mustbe reached in order to call a differential TAD truly significant) with
+                      self-defined value(True) or with automatic computed value (False)
+                      
+@speedup.option       logical. Calculation with or without speed-up algorithm (True/FALSE)
 
-@alpha logical. Significant level of differential region testing 
+@alpha                numeric. Significant level of differential region testing 
 
 ```
 
@@ -63,7 +70,7 @@ detect.result          the differential testing result for corresponding genomic
 
 # Sample Data
 
-The data getting from chr10 of GM12878 and HMEC with resolution=50kb were untilized as sample data. In the sample data file, dat1 and dat2 represent their corresponding HiC contacts with 2D mean filter smoothing and KR normalization; tad1 and tad2 denote their TAD boundaries which were detected by HiCseg. 
+The data getting from chr10 of GM12878 and HMEC with resolution=50kb were untilized as sample data. In the sample data file, dat1 and dat2 represent their corresponding raw HiC contact maps.
 
 To run the sampe data, 
 
