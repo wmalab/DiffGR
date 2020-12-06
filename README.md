@@ -34,15 +34,16 @@ The tad result table contains the following elements:
 
 ```
 
-tad.start: the starting locus of TAD
+tad.start              the starting locus of TAD
 
-tad.end: the end locus of TAD
+tad.end                the end locus of TAD
 
-scc: the SCC value of corresponding domain
+scc                    the SCC value of corresponding domain
 
-pvalue: the pvalue of differential testing on corresponding domain
+pvalue                 the pvalue of differential testing on corresponding domain
 
-pvalue.adj: the adjusted pvalue of differential testing on corresponding domain (adjusted by Benjamin-Hochberg)
+pvalue.adj             the adjusted pvalue of differential testing on corresponding domain 
+                       (adjusted by Benjamin-Hochberg)
 ```
 
 The genomic result table contains the following elements:
