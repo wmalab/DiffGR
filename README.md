@@ -13,22 +13,24 @@ The source code can be performed under R language version 4.0.2 with the install
 
 ```
 
-@dat1,@dat2           numeric.  N*N  raw HiC contact maps, which would firstly be preprocessed with 2D
+dat1,@dat2            numeric.  N*N raw HiC contact maps, which would firstly be preprocessed with 2D
                       mean filter smoothing and KR normalization in DiffGR function for the later use
  
-@res                  numeric. The resolution of HiC contact maps, eg:100kb will input 100,000
+res                   numeric. The resolution of HiC contact maps, eg:100kb will input 100,000
 
-@smooth.size          numeric. The size varied with different resolutions. 
+smooth.size           numeric. The size controlling the smoothing level (The size varies across different
+                      resolution and is guided by Hicrep paper). In this paper, we obtained the smoothing
+                      size with 11, 5 and 3 for the resolution of 25Kb, 50Kb and 100Kb respectively.
+                      
+N.perm                numeric. The number of iterations in permutation test
 
-@N.perm               numeric. The number of iterations in permutation test
-
-@cutoff.default       logical. Whether set the SCC cutoff (meaningful SCC between the two Hi-C datasets
+cutoff.default        logical. Whether set the SCC cutoff (meaningful SCC between the two Hi-C datasets
                       that mustbe reached in order to call a differential TAD truly significant) with
                       self-defined value(True) or with automatic computed value (False)
                       
-@speedup.option       logical. Calculation with or without speed-up algorithm (True/FALSE)
+speedup.option        logical. Calculation with or without speed-up algorithm (True/FALSE)
 
-@alpha                numeric. Significant level of differential region testing 
+alpha                 numeric. Significant level of differential region testing 
 
 ```
 
@@ -51,6 +53,7 @@ pvalue                 the pvalue of differential testing on corresponding domai
 
 pvalue.adj             the adjusted pvalue of differential testing on corresponding domain 
                        (adjusted by Benjamin-Hochberg)
+                       
 ```
 
 The genomic result table contains the following elements:
@@ -66,6 +69,7 @@ condition.type         the type if candidate genomic region belonging to.
 
 detect.result          the differential testing result for corresponding genomic region. 
                        1:Differential 0:Non-differential 
+                       
 ```
 
 # Sample Data
