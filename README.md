@@ -1,11 +1,11 @@
-# DiffGR: Differential genomic region detection function
+# DiffGR
 
 DiffGR is a novel statistical method for detecting differential genomic regions at TAD level between two Hi-C contact maps. Briefly, DiffGR utilizes the stratum-adjusted correlation coefficient (SCC), which can effectively eliminate the genomic-distance effect in Hi-C data, to measure the similarity of local genomic regions between two contact matrices, and then applies a nonparametric permutation test on those SCC values to detect genomic regions. 
 
 
 # Installation
 
-The source code can be performed under R language version 4.0.2 with the installation of packages HiCcompare, hicrep and R.utils.
+The source code can be performed under R language version 4.0.2 with the installation of packages HiCcompare, hicrep，HiCseg and R.utils.
 
 
 
