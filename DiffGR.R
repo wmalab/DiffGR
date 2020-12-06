@@ -3,12 +3,12 @@
 #'
 #'
 #' @dat1,@dat2 numeric. raw N*N HiC contact maps
-#' @res
-#' @smooth.size
+#' @res numeric. The resolution of HiC contact maps, eg:100kb will input 100,000
+#' @smooth.size numeric. The size varied with different resolutions
 #' @N.perm numeric. The number of iterations in permutation test
-#' @cutoff.default logical. (True/FALSE)
+#' @cutoff.default logical. logical. Whether set the SCC cutoff (meaningful SCC between the two Hi-C datasets that mustbe reached in order to call a differential TAD truly significant) with self-defined value(True) or with automatic computed value (False)
 #' @speedup.option logical. (True/FALSE) Calculation with or without speed-up algorithm
-#' @alpha logical. Significant level of differential region testing 
+#' @alpha numeric. Significant level of differential region testing 
 #'
 #'
 #' @return a list that contains the tad result and genomic region result
