@@ -50,13 +50,15 @@ The genomic result table contains the following elements:
 
 ```
 
-genom.start: the starting locus of genomic region
+genom.start            the starting locus of genomic region
 
-genom.end: the end locus of genomic region
+genom.end              the end locus of genomic region
 
-condition.type: the type if candidate genomic region belonging to. 1:single-TAD, 2: Hierachical-TAD, 3: Alternating-TAD
+condition.type         the type if candidate genomic region belonging to. 
+                       1:single-TAD, 2: Hierachical-TAD, 3: Alternating-TAD
 
-detect.result: the differential testing result for corresponding genomic region. 1:Differential 0:Non-differential 
+detect.result          the differential testing result for corresponding genomic region. 
+                       1:Differential 0:Non-differential 
 ```
 
 # Sample Data
@@ -68,9 +70,7 @@ To run the sampe data,
 ```
 dat1 <- readRDS("path/dat1.rds")
 dat2 <- readRDS("path/dat2.rds")
-tad1 <- read.table("path/tad1.txt")
-tad2 <- read.table("path/tad2.txt")
-result <- DiffGR(dat1,tad1$x,dat2,tad2$x,res=50000)
+result <- DiffGR(dat1,dat2,smooth.size=5,res=50000)
 
 ```
 
