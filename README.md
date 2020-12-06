@@ -11,9 +11,9 @@ The source code can be performed under R language version 4.0.2 with the install
 
 # Input
 
-@dat1,@dat2 numeric. N*N HiC contact maps which have been preprocessed with 2D mean filter smoothing and KR normalization
+```
 
-@tad1 @tad2 numeric. A vector of TAD boundaries of dat1 and dat2 (calling by HiCseg)
+@dat1,@dat2 numeric. N*N HiC contact maps which have been preprocessed with 2D mean filter smoothing and KR normalization
 
 @res numeric. The resolution of HiC contact maps, eg:100kb will input 100,000
 
@@ -23,7 +23,7 @@ The source code can be performed under R language version 4.0.2 with the install
 
 @alpha logical. Significant level of differential region testing 
 
-
+```
 
 # Output
 
@@ -31,6 +31,8 @@ return a list that contains the tad result and genomic region result
 
 
 The tad result table contains the following elements:
+
+```
 
 tad.start: the starting locus of TAD
 
@@ -41,9 +43,11 @@ scc: the SCC value of corresponding domain
 pvalue: the pvalue of differential testing on corresponding domain
 
 pvalue.adj: the adjusted pvalue of differential testing on corresponding domain (adjusted by Benjamin-Hochberg)
-
+```
 
 The genomic result table contains the following elements:
+
+```
 
 genom.start: the starting locus of genomic region
 
@@ -52,7 +56,7 @@ genom.end: the end locus of genomic region
 condition.type: the type if candidate genomic region belonging to. 1:single-TAD, 2: Hierachical-TAD, 3: Alternating-TAD
 
 detect.result: the differential testing result for corresponding genomic region. 1:Differential 0:Non-differential 
-
+```
 
 # Sample Data
 
