@@ -27,7 +27,6 @@ generate_noise <- function(dat11){
 # simulation for single-TADs condition (simulation1)
 
 #' @dat numeric. N*N HiC contact map 
-#' @tad numeric. TAD boundaries of dat(calling by HiCseg)
 #' @len.threshold numeric. The minimum TAD size to be considered (default value=5)
 #' @tad.change.prop numeric. The proportion of altered TADs (default value=50%)
 #' @random.prop numeric. The proportion of TAD alternation in each selected altered TADs (default value=100%)
@@ -35,7 +34,9 @@ generate_noise <- function(dat11){
 #' @return a list that contains the altered TAD regions, TAD boundaries and simulated contact map
 
 
-simulation1 <-  function(dat,tad,len.threshold=5,tad.change.prop=0.5,random.prop=1,noise.level=0.1){
+simulation1 <-  function(dat,len.threshold=5,tad.change.prop=0.5,random.prop=1,noise.level=0.1){
+  tad <- HiCseg_linkC_R(nrow(dat),round(nrow(dat)/3),"P",dat,"D")
+  tad <- tad$t_hat[tad$t_hat!=0]
   n <- round(length(tad)*tad.change.prop)
   tad.start  <- c(0,tad[-length(tad)])
   tad.length <- tad-tad.start
@@ -80,7 +81,9 @@ simulation1 <-  function(dat,tad,len.threshold=5,tad.change.prop=0.5,random.prop
 #' @return a list that contains the altered TAD regions, updated TAD boundaries and simulated contact map
 
 
-simulation2 <- function(dat,tad,len.threshold=5,random.prop=1,tad.change.prop=0.5,noise.level=0.1){
+simulation2 <- function(dat,len.threshold=5,random.prop=1,tad.change.prop=0.5,noise.level=0.1){
+  tad <- HiCseg_linkC_R(nrow(dat),round(nrow(dat)/3),"P",dat,"D")
+  tad <- tad$t_hat[tad$t_hat!=0]
   n <- round(length(tad)*tad.change.prop)
   tad.start  <- c(0,tad[-length(tad)])
   tad.length <- tad-tad.start
