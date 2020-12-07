@@ -79,8 +79,8 @@ The data getting from chr10 of GM12878 and HMEC with resolution=50kb were untili
 To run the sampe data, 
 
 ```
-dat1 <- readRDS("path/dat1.rds")
-dat2 <- readRDS("path/dat2.rds")
+dat1 <- readRDS("path/dat.GM12878.chr10.rds")
+dat2 <- readRDS("path/dat.K562.chr10.rds")
 result <- DiffGR(dat1,dat2,smooth.size=5,res=50000)
 
 ```
