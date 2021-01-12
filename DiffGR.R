@@ -179,7 +179,7 @@ DiffGR<- function(dat1,dat2,res,smooth.size,N.perm=2000,cutoff.default=TRUE,spee
       dat1 <- normalize(dat1) 
     }, timeout = 300, onTimeout = "silent")
   })
-  if(sum(res=="Tac")!=1) {
+  if(is.null(res)==TRUE) {
     stop("KR normalization for dat1 did not converge.\n", call. = FALSE)
   }
   
@@ -189,7 +189,7 @@ DiffGR<- function(dat1,dat2,res,smooth.size,N.perm=2000,cutoff.default=TRUE,spee
       dat2 <- normalize(dat2) 
     }, timeout = 300, onTimeout = "silent")
   })
-  if(sum(res=="Tac")!=1) {
+  if(is.null(res)==TRUE) {
     stop("KR normalization for dat2 did not converge.\n", call. = FALSE)
   }
   
