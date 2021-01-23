@@ -27,11 +27,13 @@
 #' detect.result: the differential testing result for corresponding genomic region. 1:Differential 0:Non-differential 
 #'  
 
+
 DiffGR<- function(dat1,dat2,res,smooth.size,N.perm=2000,cutoff.default=TRUE,speedup.option=TRUE,alpha=0.05){
   library(HiCcompare)
   library(HiCseg)
   library(hicrep)
   library(R.utils)
+  max.distance <- 10000000/res
   
   #Function of KR normalization
   normalize <- function(dat){
@@ -115,6 +117,7 @@ DiffGR<- function(dat1,dat2,res,smooth.size,N.perm=2000,cutoff.default=TRUE,spee
         }
       }
       rho.vec[l] <- scc(dat1.i,dat2.i)
+      #print(l)
     }
     rho.na <- is.na(rho.vec)
     rho.vec <- rho.vec[rho.na==FALSE]
@@ -160,10 +163,10 @@ DiffGR<- function(dat1,dat2,res,smooth.size,N.perm=2000,cutoff.default=TRUE,spee
     return(tad.bound)
   }
   
-  max.distance <- 10000000/res
+  
   tad <- HiCseg_linkC_R(nrow(dat1),round(nrow(dat1)/3),"P",dat1,"D")
   tad1 <- tad$t_hat[tad$t_hat!=0]
-  tad <- HiCseg_linkC_R(nrow(dat2),round(nrow(dat2)/3),"P",dat2,"D")  
+  tad <- HiCseg_linkC_R(nrow(dat2),round(nrow(dat2)/3),"P",dat2,"D")
   tad2 <- tad$t_hat[tad$t_hat!=0]
   if(min(length(tad1),length(tad1))==1){
     stop("The TADs of HiC maps aren't effectively detected by HiCSeg.\n", call. = FALSE)
@@ -229,42 +232,50 @@ DiffGR<- function(dat1,dat2,res,smooth.size,N.perm=2000,cutoff.default=TRUE,spee
   rho.table <- matrix(0,nrow=length(len.tad.uniq),ncol=((alpha*N.perm+1)))
   
   if(speedup.option==FALSE){
-    for(l in 1:length(len.tad.uniq)){
+    rho.table[,1] <- len.tad.uniq
+    for(l in 4:length(len.tad.uniq)){
       perm.result  <- perm(dat1,dat2,len.tad.uniq[l],N.perm)
       rho.table[l,] <- c(len.tad.uniq[l],perm.result$rho.vec)
     }
   }else{
     rho.table[,1] <- len.tad.uniq
-    sample.num <- min(round((length(len.tad.uniq)-15)*0.25),40)
-    len.chosen <- c(4:15, sort(sample(16:length(len.tad.uniq),sample.num)))
-    for(l in 1:length(len.chosen)){
-      perm.result  <- perm(dat1,dat2,len.tad.uniq[len.chosen[l]],N.perm)
-      rho.table[len.chosen[l],2:ncol(rho.table)] <- perm.result$rho.vec
-    }
-    for(k in 1:(alpha*N.perm)){
-      spline.l <- smooth.spline(len.tad.uniq[len.chosen],rho.table[len.chosen,k+1])
-      pred.result <- predict(spline.l,len.tad.uniq[16:length(len.tad.uniq)])
-      rho.table[16:length(len.tad.uniq),k+1] <- pred.result$y
+    if(length(len.tad.uniq)>16){
+      sample.num <- min(round((length(len.tad.uniq)-15)*0.25),40)
+      len.chosen <- c(4:15, sort(sample(16:length(len.tad.uniq),sample.num)))
+      for(l in 1:length(len.chosen)){
+        perm.result  <- perm(dat1,dat2,len.tad.uniq[len.chosen[l]],N.perm)
+        rho.table[len.chosen[l],2:ncol(rho.table)] <- perm.result$rho.vec
+      }
+      for(k in 1:(alpha*N.perm)){
+        spline.l <- smooth.spline(len.tad.uniq[len.chosen],rho.table[len.chosen,k+1])
+        pred.result <- predict(spline.l,len.tad.uniq[16:length(len.tad.uniq)])
+        rho.table[16:length(len.tad.uniq),k+1] <- pred.result$y
+      }
+    }else{
+      for(l in 4:length(len.tad.uniq)){
+        perm.result  <- perm(dat1,dat2,len.tad.uniq[l],N.perm)
+        rho.table[l,] <- c(len.tad.uniq[l],perm.result$rho.vec)
+      }
     }
   }
   
   #cutoff
   rho.cutoff <- matrix(0,ncol=2,nrow=length(len.tad.uniq))
   rho.cutoff[,1] <- len.tad.uniq
-  if(cutoff.default=TRUE){
+  if(cutoff.default==TRUE){
     rho.cutoff[,2] <- rep(0.85,length(len.tad.uniq))
   }else{
     
     res <- NULL
     for(kk in 1:5){
-    tryCatch({
-      res <- withTimeout({
-        dat1.rep <- generate_replicate(dat1)
-        dat1.rep <- smoothMat(dat1.rep,smooth.size)
-        dat1.rep <- normalize(dat1.rep)
-      }, timeout = 1800,onTimeout = "silent")
-    })
-      if(sum(res=="Tac")==1) {break}
+      tryCatch({
+        res <- withTimeout({
+          dat1.rep <- generate_replicate(dat1)
+          dat1.rep <- smoothMat(dat1.rep,smooth.size)
+          dat1.rep <- normalize(dat1.rep)
+        }, timeout = 1800,onTimeout = "silent")
+      })
+      if(is.null(res)==TRUE) {break}
     } 
     
     res <- NULL
@@ -276,11 +287,11 @@ DiffGR<- function(dat1,dat2,res,smooth.size,N.perm=2000,cutoff.default=TRUE,spee
           dat2.rep <- normalize(dat2.rep)
         }, timeout = 1800,onTimeout = "silent")
       })
-      if(sum(res=="Tac")==1) {break}
+      if(is.null(res)==TRUE) {break}
     } 
     
     
-   
+    
     rho.cutoff1 <- rho.cutoff
     rho.cutoff2 <- rho.cutoff
     
@@ -300,7 +311,7 @@ DiffGR<- function(dat1,dat2,res,smooth.size,N.perm=2000,cutoff.default=TRUE,spee
         perm.result  <- perm(dat12,dat2.rep,len.tad.uniq[len.chosen[l]],N.perm)
         rho.cutoff2[len.chosen[l],2] <- perm.result$rho.vec[length(perm.result$rho.vec)]
       }
-        
+      
       spline.l <- smooth.spline(len.tad.uniq[len.chosen],rho.cutoff1[len.chosen,2])
       pred.result <- predict(spline.l,len.tad.uniq[16:length(len.tad.uniq)])
       rho.cutoff1[16:length(len.tad.uniq),2] <- pred.result$y
@@ -351,3 +362,4 @@ DiffGR<- function(dat1,dat2,res,smooth.size,N.perm=2000,cutoff.default=TRUE,spee
   
   return(list(tad.result=tad.result,genomic.result=genomic.result,rho.table=rho.table))
 } 
+
