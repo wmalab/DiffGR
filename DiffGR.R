@@ -31,7 +31,7 @@
 DiffGR<- function(dat1,dat2,res,smooth.size,N.perm=2000,cutoff.default=TRUE,speedup.option=TRUE,alpha=0.05){
   library(HiCcompare)
   library(HiCseg)
-  library(hicrep)
+  #library(hicrep)
   library(R.utils)
   max.distance <- 10000000/res
   
