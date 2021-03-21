@@ -35,6 +35,103 @@ DiffGR<- function(dat1,dat2,res,smooth.size,N.perm=2000,cutoff.default=TRUE,spee
   library(R.utils)
   max.distance <- 10000000/res
   
+  
+  
+  #Functions getting from Rpackages hicrep previous version 1.8.0
+  vstran  <- function(d){
+
+    x1r = rank(d[,1], ties.method = "random")
+    x2r = rank(d[,2], ties.method = "random")
+    x1.cdf.func = ecdf(x1r); x2.cdf.func = ecdf(x2r)
+    x1.cdf = x1.cdf.func(x1r)
+    x2.cdf = x2.cdf.func(x2r)
+    new_d = cbind(x1.cdf, x2.cdf)
+
+    return(new_d)
+}
+  
+  MatToVec <- function (dat) 
+{
+    mat = as.matrix(dat)
+    nc = ncol(mat)
+    rc = nrow(mat)
+    test = matrix(0, nc * rc, 3)
+    test[, 3] = as.vector(mat)
+    test[, 2] = as.double(rep(rownames(mat), nc))
+    tmp = rep(as.double(colnames(mat)), each = rc)
+    test[, 1] = tmp
+    return(test)
+}
+  
+  get.scc <- function (dat, resol, max) 
+{
+    ub <- floor(max/resol)
+    corr <- array(ub)
+    cov <- array(ub)
+    wei <- array(ub)
+    n <- array(ub)
+    gdist = abs(dat[, 2] - dat[, 1])
+    est.scc = function(idx) {
+        if (length(idx) != 0) {
+            n = length(idx)
+            ffd = dat[idx, c(3, 4)]
+            nd = vstran(ffd)
+            if (length(unique(ffd[, 1])) != 1 & length(unique(ffd[, 
+                2])) != 1) {
+                corr = cor(ffd[, 1], ffd[, 2])
+                cov = cov(nd[, 1], nd[, 2])
+                wei = sqrt(var(nd[, 1]) * var(nd[, 2])) * n
+            }
+            else {
+                corr = NA
+                cov = NA
+                wei = NA
+            }
+        }
+        else {
+            corr = NA
+            cov = NA
+            wei = NA
+        }
+        return(list(corr = corr, wei = wei))
+    }
+    grp <- match(gdist, seq_len(ub) * resol)
+    idx <- split(seq_len(length(gdist)), grp)
+    st = sapply(idx, est.scc)
+    corr0 = unlist(st[1, ])
+    wei0 = unlist(st[2, ])
+    corr = corr0[!is.na(corr0)]
+    wei = wei0[!is.na(wei0)]
+    scc = corr %*% wei/sum(wei)
+    std = sqrt(sum(wei^2 * var(corr))/(sum(wei))^2)
+    return(list(corr = corr, wei = wei, scc = scc, std = std))
+}
+
+ smoothMat <- function (dat, h) 
+{
+    matr = as.matrix(dat)
+    c = ncol(matr)
+    r = nrow(matr)
+    smd_matr = matrix(0, r, c)
+    i <- seq_len(r)
+    rlb <- ifelse(i - h > 0, i - h, 1)
+    rrb <- ifelse(i + h < r, i + h, r)
+    j <- seq_len(c)
+    clb <- ifelse(j - h > 0, j - h, 1)
+    crb <- ifelse(j + h < c, j + h, c)
+    for (i in seq_len(r)) {
+        for (j in seq_len(c)) {
+            smd_matr[i, j] = mean(matr[rlb[i]:rrb[i], clb[j]:crb[j]])
+        }
+    }
+    colnames(smd_matr) = colnames(dat)
+    rownames(smd_matr) = rownames(dat)
+    return(smd_matr)
+}
+  
+  
+  
+  
   #Function of KR normalization
   normalize <- function(dat){
     n <- nrow(dat)
