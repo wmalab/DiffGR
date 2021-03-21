@@ -20,7 +20,8 @@ res                   numeric. The resolution of HiC contact maps, eg:100kb will
 
 smooth.size           numeric. The size controlling the smoothing level (The size varies across different
                       resolution and is guided by Hicrep paper). In this paper, we obtained the smoothing
-                      size with 11, 5 and 3 for the resolution of 25Kb, 50Kb and 100Kb respectively.
+                      size with 11, 5 and 3 on real data analysis for the resolution of 25Kb, 50Kb and 100Kb 
+                      respectively, and set the smoothing size with 0 in simulation.
                       
 N.perm                numeric. The number of iterations in permutation test
 
