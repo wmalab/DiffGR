@@ -37,7 +37,10 @@ DiffGR<- function(dat1,dat2,res,smooth.size,N.perm=2000,cutoff.default=TRUE,spee
   
   
   
-  #Functions getting from Rpackages hicrep previous version 1.8.0
+  #Functions getting from Rpackage hicrep previous version 1.8.0
+  #(https://bioconductor.statistik.tu-dortmund.de/packages/3.9/bioc/html/hicrep.html)
+  
+  
   vstran  <- function(d){
 
     x1r = rank(d[,1], ties.method = "random")
