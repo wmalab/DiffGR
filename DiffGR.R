@@ -3,6 +3,7 @@
 #'
 #'
 #' @dat1,@dat2 numeric. raw N*N HiC contact maps
+#' @tad1,@tad2 numeric. a vector of TAD boundaries of contact maps.If the input is null, the program will automatically detect the TADs by HiCseg
 #' @res numeric. The resolution of HiC contact maps, eg:100kb will input 100,000
 #' @smooth.size numeric. The size varied with different resolutions
 #' @N.perm numeric. The number of iterations in permutation test
@@ -28,7 +29,7 @@
 #'  
 
 
-DiffGR<- function(dat1,dat2,res,smooth.size,N.perm=2000,cutoff.default=TRUE,speedup.option=TRUE,alpha=0.05){
+DiffGR<- function(dat1,dat2,tad1=NULL,tad2=NULL,res,smooth.size,N.perm=2000,cutoff.default=TRUE,speedup.option=TRUE,alpha=0.05){
   library(HiCcompare)
   library(HiCseg)
   #library(hicrep)
@@ -263,14 +264,36 @@ DiffGR<- function(dat1,dat2,res,smooth.size,N.perm=2000,cutoff.default=TRUE,spee
     return(tad.bound)
   }
   
+  #check the input format
+  if((nrow(dat1)-ncol(dat1))!=0) { stop("The input format of dat1 was incorrect.\n", call. = FALSE)}
+  if((nrow(dat2)-ncol(dat2))!=0) { stop("The input format of dat2 was incorrect.\n", call. = FALSE)}
+  if((nrow(dat1)-nrow(dat2))!=0) { stop("The dimensions of two datasets were not the same.\n", call. = FALSE)}
   
-  tad <- HiCseg_linkC_R(nrow(dat1),round(nrow(dat1)/3),"P",dat1,"D")
-  tad1 <- tad$t_hat[tad$t_hat!=0]
-  tad <- HiCseg_linkC_R(nrow(dat2),round(nrow(dat2)/3),"P",dat2,"D")
-  tad2 <- tad$t_hat[tad$t_hat!=0]
-  if(min(length(tad1),length(tad1))==1){
-    stop("The TADs of HiC maps aren't effectively detected by HiCSeg.\n", call. = FALSE)
+  
+  if (is.null(tad1)==TRUE){
+    print("The TAD boundaries of dat1 were detected by HiCseg.")
+    tad <- HiCseg_linkC_R(nrow(dat1),round(nrow(dat1)/3),"P",dat1,"D")
+    tad1 <- tad$t_hat[tad$t_hat!=0]
+  }else{
+    if(is.vector(tad1)==FALSE){
+      print("The input format of tad1 was incorrect and was automatically corrected by HiCseg result.")
+      tad <- HiCseg_linkC_R(nrow(dat1),round(nrow(dat1)/3),"P",dat1,"D")
+      tad1 <- tad$t_hat[tad$t_hat!=0]
+    }
   }
+  if (is.null(tad2)==TRUE){
+    print("The TAD boundaries of dat2 were detected by HiCseg.")
+    tad <- HiCseg_linkC_R(nrow(dat2),round(nrow(dat2)/3),"P",dat2,"D")
+    tad2 <- tad$t_hat[tad$t_hat!=0]
+  }else{
+    if(is.vector(tad2)==FALSE){
+      print("The input format of tad2 was incorrect and was automatically corrected by HiCseg result.")
+      tad <- HiCseg_linkC_R(nrow(dat2),round(nrow(dat2)/3),"P",dat1,"D")
+      tad2 <- tad$t_hat[tad$t_hat!=0]
+    }
+  }
+  if(min(length(tad1),length(tad2))==1){
+    stop("The TADs of HiC maps weren't effectively detected.\n", call. = FALSE)}
   
   
   dat1 <- smoothMat(dat1,smooth.size)
@@ -462,4 +485,3 @@ DiffGR<- function(dat1,dat2,res,smooth.size,N.perm=2000,cutoff.default=TRUE,spee
   
   return(list(tad.result=tad.result,genomic.result=genomic.result,rho.table=rho.table))
 } 
-
