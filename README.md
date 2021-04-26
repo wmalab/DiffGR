@@ -13,9 +13,12 @@ The source code can be performed under R language version 4.0.2 with the install
 
 ```
 
-dat1,@dat2            numeric.  N*N raw HiC contact maps, which would firstly be preprocessed with 2D
+dat1,dat2             numeric.  N*N raw HiC contact maps, which would firstly be preprocessed with 2D
                       mean filter smoothing and KR normalization in DiffGR function for the later use
- 
+
+tad1,tad2             numeric. a vector of TAD boundaries of contact maps.If the input is NA, the program
+                      will automatically detect the TADs by HiCseg
+
 res                   numeric. The resolution of HiC contact maps, eg:100kb will input 100,000
 
 smooth.size           numeric. The size controlling the smoothing level (The size varies across different
@@ -82,8 +85,16 @@ To run the sampe data,
 ```
 dat1 <- readRDS("path/dat.GM12878.chr10.rds")
 dat2 <- readRDS("path/dat.K562.chr10.rds")
-result <- DiffGR(dat1,dat2,smooth.size=5,res=50000)
+tad1 <- read.table("path/tad.GM12878.chr10.txt")
+tad1 <- tad1$x
+tad2 <- read.table("path/tad.K562.chr10.txt") 
+tad2 <- tad2$x
 
+#with TAD inputs
+result <- DiffGR(dat1=dat1,dat2=dat2,tad1=tad1,tad2=tad2,smooth.size=5,res=50000)
+
+#without TAD inputs
+result <- DiffGR(dat1=dat1,dat2=dat2,smooth.size=5,res=50000)
 ```
 
 
