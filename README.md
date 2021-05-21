@@ -16,7 +16,7 @@ The source code can be performed under R language version 4.0.2 with the install
 dat1,dat2             numeric.  N*N raw HiC contact maps, which would firstly be preprocessed with 2D
                       mean filter smoothing and KR normalization in DiffGR function for the later use
 
-tad1,tad2             numeric. a vector of TAD boundaries of contact maps.If the input is NA, the program
+tad1,tad2             numeric. A vector of TAD boundaries of contact maps.If the input is NA, the program
                       will automatically detect the TADs by HiCseg
 
 res                   numeric. The resolution of HiC contact maps, eg:100kb will input 100,000
@@ -78,9 +78,7 @@ detect.result          the differential testing result for corresponding genomic
 
 # Sample Data
 
-The data getting from chr10 of GM12878 and HMEC with resolution=50kb were untilized as sample data. In the sample data file, dat1 and dat2 represent their corresponding raw HiC contact maps.
-
-To run the sampe data, 
+The raw HiC contact maps getting from chr10 of GM12878 and HMEC with resolution=50kb were untilized as sample data. An example of the usage of DiffGR with/without TAD inputs is shown below:
 
 ```
 dat1 <- readRDS("path/dat.GM12878.chr10.rds")
