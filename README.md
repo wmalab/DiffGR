@@ -47,9 +47,9 @@ The tad result table contains the following elements:
 
 ```
 
-tad.start              the starting locus of TAD
+tad.start              the start location for the starting bin of TAD
 
-tad.end                the end locus of TAD
+tad.end                the start location for the end bin of TAD
 
 scc                    the SCC value of corresponding domain
 
@@ -64,9 +64,9 @@ The genomic result table contains the following elements:
 
 ```
 
-genom.start            the starting locus of genomic region
+genom.start            tthe start location for the starting bin of genomic region
 
-genom.end              the end locus of genomic region
+genom.end              the start location for the end bin of genomic region
 
 condition.type         the type if candidate genomic region belonging to. 
                        1:single-TAD, 2: Hierachical-TAD, 3: Alternating-TAD
