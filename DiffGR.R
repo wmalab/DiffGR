@@ -480,8 +480,14 @@ DiffGR<- function(dat1,dat2,tad1=NULL,tad2=NULL,res,smooth.size,N.perm=2000,cuto
     }
   }
   
+  
   genomic.result <- as.matrix(cbind(genomic.interval,condition.type,detection.result))
   colnames(genomic.result) <- c("genom.start","genom.end","condition.type","detect.result")
+  
+  tad.result[,2] <- tad.result[,2]-1
+  tad.result[,1:2] <- tad.result[,1:2]*res
+  genomic.result[,2] <- genomic.result[,2]-1
+  genomic.result[,1:2] <- genomic.result[,1:2]*res
   
   return(list(tad.result=tad.result,genomic.result=genomic.result,rho.table=rho.table))
 } 
