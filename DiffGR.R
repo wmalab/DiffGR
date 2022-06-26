@@ -1,4 +1,3 @@
-
 #' DiffGR: Differential genomic region detection function
 #'
 #'
@@ -15,26 +14,32 @@
 #' @return a list that contains the tad result and genomic region result
 #' 
 #' The tad result table contains the following elements:
-#' tad.start: the start location for the starting bin of TAD
-#' tad.end: the start location for the end bin of TAD
+#' tad.start: the start location of TAD
+#' tad.end: the end location of TAD
 #' scc: the SCC value of corresponding domain
 #' pvalue: the pvalue of differential testing on corresponding domain
 #' pvalue.adj: the adjusted pvalue of differential testing on corresponding domain (adjusted by Benjamin-Hochberg)
 #' 
 #' The genomic result table contains the following elements:
-#' genom.start: the start location for the starting bin of genomic region
-#' genom.end: the start location for the end bin of genomic region
+#' genom.start: the start location of genomic region
+#' genom.end: the end of genomic region
 #' condition.type: the type if candidate genomic region belonging to. 1:single-TAD, 2: Hierachical-TAD, 3: Alternating-TAD
 #' detect.result: the differential testing result for corresponding genomic region. 1:Differential 0:Non-differential 
-#'  
+#' diff.genom.start: the start location of differential genomic region
+#' diff.genom.end: the end location of differential genomic region 
+#'
 
 
-DiffGR<- function(dat1,dat2,tad1=NULL,tad2=NULL,res,smooth.size,N.perm=2000,cutoff.default=TRUE,speedup.option=TRUE,alpha=0.05){
+
+DiffGR<- function(dat1,dat2,tad1=NULL,tad2=NULL,resol,smooth.size,N.perm=2000,cutoff.default=TRUE,speedup.option=TRUE,alpha=0.05){
   library(HiCcompare)
   library(HiCseg)
   #library(hicrep)
   library(R.utils)
-  max.distance <- 10000000/res
+  library("pracma") 
+  library("Matrix") 
+  library("limma") 
+  max.distance <- 10000000/resol
   
   
   
@@ -42,20 +47,20 @@ DiffGR<- function(dat1,dat2,tad1=NULL,tad2=NULL,res,smooth.size,N.perm=2000,cuto
   #(https://bioconductor.statistik.tu-dortmund.de/packages/3.9/bioc/html/hicrep.html)
   
   
-  vstran  <- function(d){
-
+  vstran <- function(d){
+    
     x1r = rank(d[,1], ties.method = "random")
     x2r = rank(d[,2], ties.method = "random")
     x1.cdf.func = ecdf(x1r); x2.cdf.func = ecdf(x2r)
     x1.cdf = x1.cdf.func(x1r)
     x2.cdf = x2.cdf.func(x2r)
     new_d = cbind(x1.cdf, x2.cdf)
-
+    
     return(new_d)
-}
+  }
   
   MatToVec <- function (dat) 
-{
+  {
     mat = as.matrix(dat)
     nc = ncol(mat)
     rc = nrow(mat)
@@ -65,10 +70,10 @@ DiffGR<- function(dat1,dat2,tad1=NULL,tad2=NULL,res,smooth.size,N.perm=2000,cuto
     tmp = rep(as.double(colnames(mat)), each = rc)
     test[, 1] = tmp
     return(test)
-}
+  }
   
   get.scc <- function (dat, resol, max) 
-{
+  {
     ub <- floor(max/resol)
     corr <- array(ub)
     cov <- array(ub)
@@ -76,28 +81,28 @@ DiffGR<- function(dat1,dat2,tad1=NULL,tad2=NULL,res,smooth.size,N.perm=2000,cuto
     n <- array(ub)
     gdist = abs(dat[, 2] - dat[, 1])
     est.scc = function(idx) {
-        if (length(idx) != 0) {
-            n = length(idx)
-            ffd = dat[idx, c(3, 4)]
-            nd = vstran(ffd)
-            if (length(unique(ffd[, 1])) != 1 & length(unique(ffd[, 
-                2])) != 1) {
-                corr = cor(ffd[, 1], ffd[, 2])
-                cov = cov(nd[, 1], nd[, 2])
-                wei = sqrt(var(nd[, 1]) * var(nd[, 2])) * n
-            }
-            else {
-                corr = NA
-                cov = NA
-                wei = NA
-            }
+      if (length(idx) != 0) {
+        n = length(idx)
+        ffd = dat[idx, c(3, 4)]
+        nd = vstran(ffd)
+        if (length(unique(ffd[, 1])) != 1 & length(unique(ffd[, 
+                                                              2])) != 1) {
+          corr = cor(ffd[, 1], ffd[, 2])
+          cov = cov(nd[, 1], nd[, 2])
+          wei = sqrt(var(nd[, 1]) * var(nd[, 2])) * n
         }
         else {
-            corr = NA
-            cov = NA
-            wei = NA
+          corr = NA
+          cov = NA
+          wei = NA
         }
-        return(list(corr = corr, wei = wei))
+      }
+      else {
+        corr = NA
+        cov = NA
+        wei = NA
+      }
+      return(list(corr = corr, wei = wei))
     }
     grp <- match(gdist, seq_len(ub) * resol)
     idx <- split(seq_len(length(gdist)), grp)
@@ -109,10 +114,10 @@ DiffGR<- function(dat1,dat2,tad1=NULL,tad2=NULL,res,smooth.size,N.perm=2000,cuto
     scc = corr %*% wei/sum(wei)
     std = sqrt(sum(wei^2 * var(corr))/(sum(wei))^2)
     return(list(corr = corr, wei = wei, scc = scc, std = std))
-}
-
- smoothMat <- function (dat, h) 
-{
+  }
+  
+  smoothMat <- function (dat, h) 
+  {
     matr = as.matrix(dat)
     c = ncol(matr)
     r = nrow(matr)
@@ -124,29 +129,147 @@ DiffGR<- function(dat1,dat2,tad1=NULL,tad2=NULL,res,smooth.size,N.perm=2000,cuto
     clb <- ifelse(j - h > 0, j - h, 1)
     crb <- ifelse(j + h < c, j + h, c)
     for (i in seq_len(r)) {
-        for (j in seq_len(c)) {
-            smd_matr[i, j] = mean(matr[rlb[i]:rrb[i], clb[j]:crb[j]])
-        }
+      for (j in seq_len(c)) {
+        smd_matr[i, j] = mean(matr[rlb[i]:rrb[i], clb[j]:crb[j]])
+      }
     }
     colnames(smd_matr) = colnames(dat)
     rownames(smd_matr) = rownames(dat)
     return(smd_matr)
-}
+  }
   
   
   
   
   #Function of KR normalization
-  normalize <- function(dat){
-    n <- nrow(dat)
-    M.A <- as.matrix(dat)
-    dat1.sum <-  colSums(M.A)
-    posi1 <- which(dat1.sum!=0)
-    M.A.s <- KRnorm(M.A)
-    M.A.n <- matrix(0,ncol=n,nrow=n)
-    M.A.n[posi1,posi1] <- M.A.s
-    return(M.A.n)
+  bnewt2= function(A0,tol=1e-5,delta=0.05,Delta=2,fl=0)
+  {
+    A0=as.matrix(A0)
+    n0 = nrow(A0)
+    KR0 = which(colSums(A0)>100)
+    A = A0[KR0,KR0]
+    
+    # BNEWT A balancing algorithm for symmetric matrices
+    #
+    #X = BNEWT(A) attempts to find a vector X such that
+    #diag(X)*A*diag(X) is close to doubly stochastic. A must
+    #be symmetric and nonnegative.
+    #
+    #X0: initial guess. TOL: error tolerance.
+    #delta/Delta: how close/far balancing vectors can get
+    #to/from the edge of the positive cone.
+    #We use a relative measure on the size of elements.
+    #FL: intermediate convergence statistics on/off.
+    #RES: residual error, measured by norm(diag(x)*A*x - e).
+    #Initialise
+    n = nrow(A)
+    e = ones(n,1)
+    x0 = e
+    res = NaN
+    # Inner stopping criterion parameters.
+    g=0.9
+    etamax = 0.05
+    eta = etamax
+    stop_tol = tol*.5
+    
+    x = x0; rt = tol^2; v = x*(A%*%x); rk = 1 - v;
+    
+    rho_km1 = t(rk)%*%rk; rout = rho_km1; rold = rout;
+    MVP = 0;
+    i = 0; # Outer iteration count.
+    if (fl == 1) {fprintf('it in. it res\n')}
+    while (rout > rt) { # Outer iteration
+      i = i + 1; k = 0; y = e;
+      innertol = max(eta^2*rout,rt)
+      while (rho_km1 > innertol){ #Inner iteration by CG
+        k = k + 1
+        if (k == 1){
+          Z = rk/v; p=Z; rho_km1 = t(rk)%*%Z;
+        }else{
+          beta=rho_km1/rho_km2
+          p=Z + as.numeric(beta)*p
+        }
+        # Update search direction efficiently.
+        w = x*(A%*%(x*p)) + v*p
+        alpha = rho_km1/(t(p)%*%w)
+        ap = as.numeric(alpha)*p
+        # Test distance to boundary of cone.
+        ynew = y + ap;
+        if (min(ynew) <= delta){
+          if (delta == 0) {break}
+          ind = which(ap < 0)
+          gamma = min((delta - y[ind])/ap[ind])
+          y = y + gamma*ap;
+          break
+        }
+        if (max(ynew) >= Delta){
+          ind = which(ynew > Delta);
+          gamma = min((Delta - y[ind])/ap[ind])
+          y = y + gamma*ap
+          break
+        }
+        y = ynew
+        rk = rk - as.numeric(alpha)*w; rho_km2 = rho_km1;
+        Z = rk/v; rho_km1 = t(rk)%*%Z;
+      }
+      x = x*y; v = x*(A%*%x);
+      rk = 1 - v; rho_km1 = t(rk)%*%rk; rout = rho_km1;
+      MVP = MVP + k + 1;
+      
+      # Update inner iteration stopping criterion.
+      rat = rout/rold; rold = rout; res_norm = sqrt(rout);
+      eta_o = eta; eta = g%*%rat;
+      if (g%*%eta_o^2 > 0.1){
+        eta = max(eta,g*eta_o^2)
+      }
+      
+      eta = max(min(eta,etamax),stop_tol/res_norm);
+      if (fl == 1){
+        fprintf('%3d %6d %.3e \n',i,k, r_norm);
+        res=r_norm
+      }
+    }
+    KRnorm = ones(n0,1)
+    KRnorm[KR0] = x
+    s = sum(A0)/n0
+    KRnorm = KRnorm%*%sqrt(s)
+    Anew = A0*(KRnorm%*%t(KRnorm))
+    return(list(Anew=Anew,KRnorm=KRnorm,res=res))
   }
+  
+  normalize <-function(im){
+    # find gap
+    pos=which(colSums(im>0)==0)
+    pos2=which(colSums(im>0)!=0)
+    im2=im;
+    im2=im2[-pos,]
+    im2=im2[,-pos]
+    n=nrow(im2)
+    im2=as.matrix(im2)
+    A=matrix(1,41,n)
+    for (i in 1:20){
+      A[21+i,1:(n-i)]=Diag(im2,-i)
+      A[21-i,(i+1):n]=Diag(im2,i)
+    }
+    gapidx=which(colSums(A>0)<35)
+    gapidx=c(pos,pos2[gapidx])
+    #         sumim=colSums(im>0)
+    #	cutoff = as.numeric(quantile(sumim[which(sumim>0)],0.05))
+    #	gapidx=which(colSums(im)<cutoff)
+    
+    
+    #if(sum(round(im)!=im)==0){
+    message('Your input matrix is raw matrix, perform KR normalization');
+    imnew_ = bnewt2(im)
+    imnew = as.matrix(imnew_$Anew)
+    # }else{
+    #message('Your input matrix is normalized matrix, skip KR normalization');
+    # imnew=im
+    # }
+    
+    return(imnew)
+  }
+  
   
   #Function of generating pseudo replicates
   generate_replicate <- function(dat11){
@@ -357,7 +480,7 @@ DiffGR<- function(dat1,dat2,tad1=NULL,tad2=NULL,res,smooth.size,N.perm=2000,cuto
   if(speedup.option==FALSE){
     rho.table[,1] <- len.tad.uniq
     for(l in 4:length(len.tad.uniq)){
-      perm.result  <- perm(dat1,dat2,len.tad.uniq[l],N.perm)
+      perm.result <- perm(dat1,dat2,len.tad.uniq[l],N.perm)
       rho.table[l,] <- c(len.tad.uniq[l],perm.result$rho.vec)
     }
   }else{
@@ -366,7 +489,7 @@ DiffGR<- function(dat1,dat2,tad1=NULL,tad2=NULL,res,smooth.size,N.perm=2000,cuto
       sample.num <- min(round((length(len.tad.uniq)-15)*0.25),40)
       len.chosen <- c(4:15, sort(sample(16:length(len.tad.uniq),sample.num)))
       for(l in 1:length(len.chosen)){
-        perm.result  <- perm(dat1,dat2,len.tad.uniq[len.chosen[l]],N.perm)
+        perm.result <- perm(dat1,dat2,len.tad.uniq[len.chosen[l]],N.perm)
         rho.table[len.chosen[l],2:ncol(rho.table)] <- perm.result$rho.vec
       }
       for(k in 1:(alpha*N.perm)){
@@ -376,7 +499,7 @@ DiffGR<- function(dat1,dat2,tad1=NULL,tad2=NULL,res,smooth.size,N.perm=2000,cuto
       }
     }else{
       for(l in 4:length(len.tad.uniq)){
-        perm.result  <- perm(dat1,dat2,len.tad.uniq[l],N.perm)
+        perm.result <- perm(dat1,dat2,len.tad.uniq[l],N.perm)
         rho.table[l,] <- c(len.tad.uniq[l],perm.result$rho.vec)
       }
     }
@@ -420,18 +543,18 @@ DiffGR<- function(dat1,dat2,tad1=NULL,tad2=NULL,res,smooth.size,N.perm=2000,cuto
     
     if(speedup.option==FALSE){
       for(l in 1:length(len.tad.uniq)){
-        perm.result  <- perm(dat1,dat1.rep,len.tad.uniq[l],N.perm)
+        perm.result <- perm(dat1,dat1.rep,len.tad.uniq[l],N.perm)
         rho.cutoff1[l,2] <- perm.result$rho.vec[length(perm.result$rho.vec)]
-        perm.result  <- perm(dat2,dat2.rep,len.tad.uniq[l],N.perm)
+        perm.result <- perm(dat2,dat2.rep,len.tad.uniq[l],N.perm)
         rho.cutoff2[l,2] <- perm.result$rho.vec[length(perm.result$rho.vec)]
       }
     }else{
       sample.num <- min(round((length(len.tad.uniq)-15)*0.25),40)
       len.chosen <- c(4:15, sort(sample(16:length(len.tad.uniq),sample.num)))
       for(l in 1:length(len.chosen)){
-        perm.result  <- perm(dat1,dat1.rep,len.tad.uniq[len.chosen[l]],N.perm)
+        perm.result <- perm(dat1,dat1.rep,len.tad.uniq[len.chosen[l]],N.perm)
         rho.cutoff1[len.chosen[l],2] <- perm.result$rho.vec[length(perm.result$rho.vec)]
-        perm.result  <- perm(dat12,dat2.rep,len.tad.uniq[len.chosen[l]],N.perm)
+        perm.result <- perm(dat12,dat2.rep,len.tad.uniq[len.chosen[l]],N.perm)
         rho.cutoff2[len.chosen[l],2] <- perm.result$rho.vec[length(perm.result$rho.vec)]
       }
       
@@ -468,26 +591,31 @@ DiffGR<- function(dat1,dat2,tad1=NULL,tad2=NULL,res,smooth.size,N.perm=2000,cuto
   tad.result[,5] <- p.adjust(tad.result[,4],method="BH")
   
   detection.result <- rep(0,nrow(genomic.interval))
+  diff.genom.start <- rep(NA,nrow(genomic.interval) )
+  diff.genom.end <- rep(NA,nrow(genomic.interval) )
   for(i in 1:nrow(genomic.interval)){
     s <- min(which(tad.result[,1]==genomic.interval[i,1]))
     e <- max(which(tad.result[,2]==genomic.interval[i,2]))
     if(sum(tad.result[s:e,5]<alpha)>0){
       diff.tad <- which(tad.result[s:e,5]<alpha)
-      diff.len.max  <- max(tad.result[(diff.tad+s-1),2]-tad.result[(diff.tad+s-1),1])
+      diff.len.max <- max(tad.result[(diff.tad+s-1),2]-tad.result[(diff.tad+s-1),1])
+      max.posi <- which((tad.result[(diff.tad+s-1),2]-tad.result[(diff.tad+s-1),1])==diff.len.max)
       if(diff.len.max>max(4,(genomic.interval[i,2]-genomic.interval[i,1])/3)){
         detection.result[i] <- 1
+        diff.genom.start[i] <- tad.result[(diff.tad[max.posi]+s-1),1]-1
+        diff.genom.end[i] <-  tad.result[(diff.tad[max.posi]+s-1),1]  
       }
     }
   }
   
   
-  genomic.result <- as.matrix(cbind(genomic.interval,condition.type,detection.result))
-  colnames(genomic.result) <- c("genom.start","genom.end","condition.type","detect.result")
+  genomic.result <- as.matrix(cbind(genomic.interval,condition.type,detection.result,diff.genom.start,diff.genom.end))
+  colnames(genomic.result) <- c("genom.start","genom.end","condition.type","detect.result","diff.genom.start","diff.genom.end")
   
   tad.result[,2] <- tad.result[,2]-1
-  tad.result[,1:2] <- tad.result[,1:2]*res
-  genomic.result[,2] <- genomic.result[,2]-1
-  genomic.result[,1:2] <- genomic.result[,1:2]*res
+  tad.result[,1:2] <- tad.result[,1:2]*resol
+  genomic.result[,2] <- genomic.result[,2]
+  genomic.result[,c(1:2,5:6)] <- genomic.result[,c(1:2,5:6)]*resol
   
   return(list(tad.result=tad.result,genomic.result=genomic.result,rho.table=rho.table))
 } 
