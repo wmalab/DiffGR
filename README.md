@@ -81,7 +81,7 @@ diff.genom.end          the end location of differential genomic region
 
 # Sample Data
 
-The raw HiC contact maps getting from chr10 of GM12878 and HMEC with resolution=50kb were untilized as sample data. An example of the usage of DiffGR with/without TAD inputs is shown below:
+The raw HiC contact maps getting from chr10 of GM12878 and K562 with resolution=50kb were untilized as sample data. An example of the usage of DiffGR with/without TAD inputs is shown below:
 
 ```
 dat1 <- readRDS("path/dat.GM12878.chr10.rds")
