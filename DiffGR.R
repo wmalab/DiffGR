@@ -602,8 +602,8 @@ DiffGR<- function(dat1,dat2,tad1=NULL,tad2=NULL,resol,smooth.size,N.perm=2000,cu
       max.posi <- which((tad.result[(diff.tad+s-1),2]-tad.result[(diff.tad+s-1),1])==diff.len.max)
       if(diff.len.max>max(4,(genomic.interval[i,2]-genomic.interval[i,1])/3)){
         detection.result[i] <- 1
-        diff.genom.start[i] <- tad.result[(diff.tad[max.posi]+s-1),1]
-        diff.genom.end[i] <-  tad.result[(diff.tad[max.posi]+s-1),2]  
+        diff.genom.start[i] <- min(tad.result[(diff.tad[max.posi]+s-1),1])
+        diff.genom.end[i] <-  max(tad.result[(diff.tad[max.posi]+s-1),2])  
       }
     }
   }
