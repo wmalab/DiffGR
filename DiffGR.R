@@ -141,7 +141,7 @@ DiffGR<- function(dat1,dat2,tad1=NULL,tad2=NULL,resol,smooth.size,N.perm=2000,cu
   
   
   
-  #Function of KR normalization
+  #Functions of KR normalization, getting from RHiCDB. package
   bnewt2= function(A0,tol=1e-5,delta=0.05,Delta=2,fl=0)
   {
     A0=as.matrix(A0)
