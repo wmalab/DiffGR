@@ -25,8 +25,8 @@
 #' genom.end: the end of genomic region
 #' condition.type: the type if candidate genomic region belonging to. 1:single-TAD, 2: Hierachical-TAD, 3: Alternating-TAD
 #' detect.result: the differential testing result for corresponding genomic region. 1:Differential 0:Non-differential 
-#' diff.genom.start: the start location of differential genomic region
-#' diff.genom.end: the end location of differential genomic region 
+#' diff.genom.start: the start location of noticeable differential area 
+#' diff.genom.end: the end location of noticeable differential area  
 #'
 
 
