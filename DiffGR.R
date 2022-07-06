@@ -20,7 +20,7 @@
 #' pvalue: the pvalue of differential testing on corresponding domain
 #' pvalue.adj: the adjusted pvalue of differential testing on corresponding domain (adjusted by Benjamin-Hochberg)
 #' 
-#' The genomic result table contains the following elements:
+#' The genomic region result table contains the following elements:
 #' genom.start: the start location of genomic region
 #' genom.end: the end of genomic region
 #' condition.type: the type if candidate genomic region belonging to. 1:single-TAD, 2: Hierachical-TAD, 3: Alternating-TAD
