@@ -11,6 +11,7 @@ To install and load the developmental version of DiffGR in R:
 
 install.packages("path/DiffGR_1.0.tar.gz", repos = NULL, type ="source")
 library(DiffGR)
+
 ```
 
 # Input
