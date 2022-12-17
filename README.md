@@ -5,9 +5,13 @@ DiffGR is a novel statistical method for detecting differential genomic regions 
 
 # Installation
 
-The source code can be performed under R language version 4.0.2 with the installation of packages HiCcompare, HiCseg and R.utils.
+To install and load the developmental version of DiffGR in R:
 
+```
 
+install.packages("path/DiffGR_1.0.tar.gz", repos = NULL, type ="source")
+library(DiffGR)
+```
 
 # Input
 
