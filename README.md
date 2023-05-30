@@ -9,7 +9,7 @@ To install and load the developmental version of DiffGR in R:
 
 ```
 
-install.packages("path/DiffGR_1.0.tar.gz", repos = NULL, type ="source")
+install.packages("path/DiffGR_1.1.tar.gz", repos = NULL, type ="source")
 library(DiffGR)
 
 ```
@@ -38,6 +38,10 @@ cutoff.default        logical. Whether set the SCC cutoff (meaningful SCC betwee
                       self-defined value(True) or with automatic computed value (False)
                       
 speedup.option        logical. Calculation with or without speed-up algorithm (True/FALSE)
+
+parallel              logical.Whether utilize parallel in permutation tests (True/FALSE)
+
+core.num              numeric. The number of cores utilizing to compute
 
 alpha                 numeric. Significant level of differential region testing 
 
