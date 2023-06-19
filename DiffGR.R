@@ -6,8 +6,10 @@
 #' @res numeric. The resolution of HiC contact maps, eg:100kb will input 100,000
 #' @smooth.size numeric. The size varied with different resolutions
 #' @N.perm numeric. The number of iterations in permutation test
-#' @cutoff.default logical. logical. Whether set the SCC cutoff (meaningful SCC between the two Hi-C datasets that mustbe reached in order to call a differential TAD truly significant) with self-defined value(True) or with automatic computed value (False)
+#' @cutoff.default logical. Whether set the SCC cutoff (meaningful SCC between the two Hi-C datasets that mustbe reached in order to call a differential TAD truly significant) with self-defined value(True) or with automatic computed value (False)
 #' @speedup.option logical. (True/FALSE) Calculation with or without speed-up algorithm
+#' @parallel logical.Whether utilized 
+#' @core.num numeric. 
 #' @alpha numeric. Significant level of differential region testing 
 #'
 #'
@@ -31,7 +33,7 @@
 
 
 
-DiffGR<- function(dat1,dat2,tad1=NULL,tad2=NULL,resol,smooth.size,N.perm=2000,cutoff.default=TRUE,speedup.option=TRUE,alpha=0.05){
+DiffGR<- function(dat1,dat2,tad1=NULL,tad2=NULL,resol,smooth.size,N.perm=2000,cutoff.default=TRUE,speedup.option=TRUE,parallel=FALSE,core.num=1,alpha=0.05){
   library(HiCcompare)
   library(HiCseg)
   #library(hicrep)
@@ -477,20 +479,41 @@ DiffGR<- function(dat1,dat2,tad1=NULL,tad2=NULL,resol,smooth.size,N.perm=2000,cu
   
   rho.table <- matrix(0,nrow=length(len.tad.uniq),ncol=((alpha*N.perm+1)))
   
+  perm.func(l) <- function(l){
+    perm.r <- perm(dat1,dat2,len.tad.uniq[l],N.perm)
+    return(perm.r$rho.vec)
+  }
+  
   if(speedup.option==FALSE){
     rho.table[,1] <- len.tad.uniq
+    if(parallel==TRUE){
+    library(doParallel)
+    registerDoParallel(core_num)
+   
+    perm.result <- foreach(l=4:length(len.tad.uniq)) %dopar% perm.func(l)
+    rho.table[4:length(len.tad.uniq),2:((alpha*N.perm+1))] <- matrix(unlist(perm.result),ncol=alpha*N.perm,byrow=TRUE)
+    }else{
     for(l in 4:length(len.tad.uniq)){
       perm.result <- perm(dat1,dat2,len.tad.uniq[l],N.perm)
       rho.table[l,] <- c(len.tad.uniq[l],perm.result$rho.vec)
     }
+  }
   }else{
     rho.table[,1] <- len.tad.uniq
     if(length(len.tad.uniq)>16){
       sample.num <- min(round((length(len.tad.uniq)-15)*0.25),40)
       len.chosen <- c(4:15, sort(sample(16:length(len.tad.uniq),sample.num)))
+      if(parallel==TRUE){
+        library(doParallel)
+        registerDoParallel(core_num)
+        perm.result <- foreach(l=len.chosen) %dopar% perm.func(l)
+        rho.table[len.chosen,2:((alpha*N.perm+1))] <- matrix(unlist(perm.result),ncol=alpha*N.perm,byrow=TRUE)
+       
+      }else{
       for(l in 1:length(len.chosen)){
         perm.result <- perm(dat1,dat2,len.tad.uniq[len.chosen[l]],N.perm)
         rho.table[len.chosen[l],2:ncol(rho.table)] <- perm.result$rho.vec
+      }
       }
       for(k in 1:(alpha*N.perm)){
         spline.l <- smooth.spline(len.tad.uniq[len.chosen],rho.table[len.chosen,k+1])
