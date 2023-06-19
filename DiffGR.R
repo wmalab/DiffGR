@@ -8,8 +8,8 @@
 #' @N.perm numeric. The number of iterations in permutation test
 #' @cutoff.default logical. Whether set the SCC cutoff (meaningful SCC between the two Hi-C datasets that mustbe reached in order to call a differential TAD truly significant) with self-defined value(True) or with automatic computed value (False)
 #' @speedup.option logical. (True/FALSE) Calculation with or without speed-up algorithm
-#' @parallel logical.Whether utilized 
-#' @core.num numeric. 
+#' @parallel logical.Whether utilize parallel in permutation tests (True/FALSE)
+#' @core.num numeric.The number of cores utilizing to compute 
 #' @alpha numeric. Significant level of differential region testing 
 #'
 #'
